@@ -12,9 +12,9 @@ spring:
     druid:
       # 主库数据源
       master:
-      url: jdbc:mysql://rm-cn-9lb3afskz000d7to.rwlb.rds.aliyuncs.com:3306/sduvideo?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=GMT%2B8
-      username: sduvideo
-      password: sduvideo520!
+      url: jdbc:mysql://xxxxxxxxx:3306/sduvideo?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=GMT%2B8
+      username: xxxxx
+      password: xxxxx
       # 初始连接数
       initialSize: 5
       # 最小连接池数量
@@ -40,26 +40,4 @@ swagger:
   enabled: true
     # 请求前缀
   pathMapping: /dev-api
-
-aliyun:
-  oss:
-    endpoint: http://oss-cn-beijing.aliyuncs.com # oss对外服务的访问域名 普通域名#http://oss-accelerate.aliyuncs.com  #传输加速域名
-    accessKeyId: LTAI5tQ1dMf7bCKg57Buooa3
-    accessKeySecret: JJOam6a0QzxJaUTRxA2U6XJ56dvBmH
-    bucketName: heartmelody
-    url: https://heartmelody.oss-accelerate.aliyuncs.com/ # https://heartmelody.oss-cn-beijing.aliyuncs.com/ #普通域名
-    filePath:
-      emoAnalyseFilePath: /user/
-    policy:
-      expire: 300 # 签名有效期(S)
-      maxSize: 2048 # 上传文件大小(M)
-    #callback:  # 文件上传成功后的回调地址
-    dir:
-      prefix: testdata/ # 上传文件夹路径前缀
-  sms:
-    accessKeyId: LTAI5t9HggHRzZTc5PMTrzoG
-    accessKeySecret: BTujskllAqOSAGfyiYS0zutEuAyHyU
-    signName: heartmelody
-    templateCode: SMS_275285392
-    regionId: cn-hangzhou
 
