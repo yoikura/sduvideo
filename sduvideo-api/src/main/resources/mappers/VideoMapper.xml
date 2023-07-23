@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.shixun.sduvideoapi.mapper.VideoMapper">
+    <resultMap id="VideoMap" type="com.shixun.sduvideoapi.domain.vo.VideoVO">
+        <result column="vid" property="id" />
+        <result column="vname" property="name" />
+        <result column="nick_name" property="author" />
+        <result column="type_name" property="type" />
+        <result column="cover" property="img" />
+        <result column="play_num" property="playNum" />
+        <result column="create_time" property="createTime" />
+        <result column="description" property="description" />
+        <result column="uid" property="uid" />
+        <result column="duration" property="duration" />
+    </resultMap>
+
+    <resultMap id="RecommendMap" type="com.shixun.sduvideoapi.domain.vo.VideoInfoVO">
+        <result column="vid" property="id" />
+        <result column="vname" property="name" />
+        <result column="nick_name" property="author" />
+        <result column="cover" property="img" />
+        <result column="play_num" property="playNum" />
+        <result column="like_num" property="likeNum" />
+    </resultMap>
+
+    <resultMap id="VideoInfoMap" type="com.shixun.sduvideoapi.domain.vo.VideoInfoVO">
+        <result column="vid" property="id" />
+        <result column="vname" property="name" />
+        <result column="uid" property="uid" />
+        <result column="nick_name" property="author" />
+        <result column="type_name" property="type" />
+        <result column="cover" property="img" />
+        <result column="play_num" property="playNum" />
+        <result column="create_time" property="createTime" />
+        <result column="description" property="description" />
+        <result column="uid" property="uid" />
+        <result column="duration" property="duration" />
+        <result column="address" property="address" />
+        <result column="like_num" property="likeNum" />
+        <result column="comment_num" property="commentNum" />
+        <result column="favorite_num" property="favoriteNum" />
+        <result column="avatar" property="avatar" />
+        <result column="following" property="following" />
+        <result column="followed" property="followed" />
+        <result column="signature" property="signature" />
+    </resultMap>
+
+    <resultMap id="CommentMap" type="com.shixun.sduvideoapi.domain.vo.CommentVO">
+        <result column="nick_name" property="nickName" />
+        <result column="avatar" property="avatar" />
+        <result column="create_time" property="createTime" />
+        <result column="content" property="content" />
+        <result column="cid" property="id" />
+    </resultMap>
+
+    <select id="getVideoType" resultType="com.shixun.sduvideoapi.domain.entity.VideoType">
+        select * from video_type where is_deleted = 0
+    </select>
+
+    <select id="selectByType" resultMap="VideoMap">
+        select vid,vname,nick_name,type_name,video_info.cover,play_num,create_time,video_info.uid,description,duration from video_info
+        left join user_info on video_info.uid = user_info.uid
+        left join video_type vt on video_info.tid = vt.tid
+        where video_info.tid=#{tid}
+    </select>
+
+    <select id="selectById" resultMap="VideoInfoMap">
+        select vf.vid,vname,vf.uid,vf.description,address,like_num,comment_num,play_num,favorite_num,nick_name,create_time,avatar,following,followed,duration,type_name,vf.cover,ui.signature from video_info vf
+       left join video_type vt on vf.tid = vt.tid
+       left join user_info ui on vf.uid = ui.uid
+        where vf.vid = #{vid}
+    </select>
+
+    <insert id="insertFavoriteVideo" parameterType="com.shixun.sduvideoapi.domain.dto.SetFavoriteVideoDTO">
+        insert into video_favorite(uid, vid, create_time) values (#{uid},#{vid},#{createTime})
+    </insert>
+
+    <delete id="deleteFavoriteVideo" parameterType="com.shixun.sduvideoapi.domain.dto.SetFavoriteVideoDTO">
+        delete from video_favorite where uid = #{uid} and vid = #{vid}
+    </delete>
+
+    <update id="addFavorite" parameterType="com.shixun.sduvideoapi.domain.dto.SetFavoriteVideoDTO">
+        update video_info set favorite_num = video_info.favorite_num + 1 where vid = #{vid};
+    </update>
+
+    <update id="subFavorite" parameterType="com.shixun.sduvideoapi.domain.dto.SetFavoriteVideoDTO">
+        update video_info set favorite_num = video_info.favorite_num - 1 where vid = #{vid};
+    </update>
+
+    <select id="selectFavorite" parameterType="com.shixun.sduvideoapi.domain.dto.SetFavoriteVideoDTO" resultType="com.shixun.sduvideoapi.domain.entity.VideoFavorite">
+        select *
+        from video_favorite
+        where uid=#{uid} and vid=#{vid};
+    </select>
+
+    <select id="selectLike" parameterType="com.shixun.sduvideoapi.domain.dto.SetLikeVideoDTO" resultType="com.shixun.sduvideoapi.domain.entity.VideoLike">
+        select *
+        from video_like
+        where uid=#{uid} and vid=#{vid};
+    </select>
+
+    <insert id="insertLikeVideo" parameterType="com.shixun.sduvideoapi.domain.dto.SetLikeVideoDTO">
+        insert into video_like(uid, vid) values (#{uid},#{vid})
+    </insert>
+
+    <delete id="deleteLikeVideo" parameterType="com.shixun.sduvideoapi.domain.dto.SetLikeVideoDTO">
+        delete from video_like where uid = #{uid} and vid = #{vid}
+    </delete>
+
+    <update id="addLike" parameterType="com.shixun.sduvideoapi.domain.dto.SetLikeVideoDTO">
+        update video_info set like_num = video_info.like_num + 1 where vid = #{vid};
+    </update>
+
+    <update id="subLike" parameterType="com.shixun.sduvideoapi.domain.dto.SetLikeVideoDTO">
+        update video_info set like_num = video_info.like_num - 1 where vid = #{vid};
+    </update>
+
+    <insert id="insertComment" parameterType="com.shixun.sduvideoapi.domain.dto.CommentDTO">
+        insert into video_comment(uid, vid, content,create_time) values (#{uid},#{vid},#{content},#{createTime})
+    </insert>
+
+    <select id="rank" resultMap="VideoMap">
+        select vid,vname,nick_name,type_name,video_info.cover,play_num,create_time,video_info.uid,description,duration from video_info
+        left join user_info on video_info.uid = user_info.uid
+        left join video_type vt on video_info.tid = vt.tid
+        order by play_num desc
+        limit 10
+    </select>
+
+
+    <insert id="insertHistory" parameterType="java.util.Map">
+        insert into video_history
+        values (null,#{vid},#{uid},#{createTime});
+    </insert>
+
+
+    <update id="insertVideoPlayNum" parameterType="java.util.Map">
+        update video_info set play_num = play_num + 1 where vid = #{vid};
+    </update>
+
+    <select id="getVideoCommentById" parameterType="java.util.Map" resultMap="CommentMap">
+        select U.nick_name,U.avatar,C.create_time,C.content,C.cid
+        from video_comment C,user_info U
+        where C.uid = U.uid and vid = #{vid}
+        order by C.create_time desc
+    </select>
+
+    <select id="recommend" resultMap="RecommendMap">
+        SELECT vid,vname,nick_name,cover,play_num,like_num FROM video_info
+        left join user_info ui on ui.uid = video_info.uid
+        ORDER BY RAND() LIMIT 9;
+    </select>
+
+    <insert id="insertVideo" parameterType="com.shixun.sduvideoapi.domain.entity.VideoInfo"> insert into video_info(vname,description,uid,address,cover,tid,duration,create_time) values (#{vname},#{description},#{uid},#{address},#{cover},#{tid},#{duration},#{createTime}) </insert>
+
+    <select id="search" resultMap="VideoInfoMap">
+        select vf.vid,vname,vf.uid,vf.description,address,like_num,comment_num,play_num,favorite_num,nick_name,create_time,avatar,following,followed,duration,type_name,vf.cover,ui.signature from video_info vf
+       left join video_type vt on vf.tid = vt.tid
+       left join user_info ui on vf.uid = ui.uid
+        where vf.vname like concat('%',#{searchContent},'%') or vf.description like concat('%',#{searchContent},'%')
+    </select>
+</mapper>

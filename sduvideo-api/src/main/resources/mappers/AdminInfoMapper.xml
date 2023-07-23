@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.shixun.sduvideoapi.mapper.AdminInfoMapper">
+
+    <select id="AdminLogin" resultType="com.shixun.sduvideoapi.domain.entity.AdminInfo">
+        select * from admin_info where admin_name = #{adminName} and password = #{password}
+    </select>
+
+    <select id="getAdminById" resultType="com.shixun.sduvideoapi.domain.entity.AdminInfo">
+        select * from admin_info where aid = #{aid}
+    </select>
+
+    <select id="selectAllVideos" resultType="com.shixun.sduvideoapi.domain.entity.VideoInfo">
+        select * from video_info
+        <where>
+            <if test="vname != null and vname != ''">
+                and vname like concat('%', #{vname},'%')
+            </if>
+        </where>
+        limit #{page}, #{size}
+
+    </select>
+
+    <select id="selectAllCount" resultType="java.lang.Integer">
+        select count(*) from video_info
+        <where>
+            <if test="vname != null and vname != ''"> and vname like concat('%', #{vname},'%') </if>
+        </where>
+ </select>
+    <select id="selectAllUsersCount" resultType="java.lang.Integer"> select count(*) from user_info </select>
+    <select id="selectAllUsers" resultType="com.shixun.sduvideoapi.domain.entity.UserInfo">
+        select * from user_info
+        <where>
+            <if test="uname != null and uname != ''"> and user_name like concat('%', #{uname},'%') </if>
+        </where>
+        limit #{page}, #{size}
+    </select>
+
+    <update id="examineVideo" parameterType="com.shixun.sduvideoapi.domain.dto.ExamineVideoDTO">
+        update video_info set examine=#{aid} where vid=#{vid}
+    </update>
+
+    <delete id="deleteUserById" parameterType="com.shixun.sduvideoapi.domain.dto.UserInfoDTO">
+        delete from user_info where uid=#{uid}
+    </delete>
+
+    <delete id="deleteUserByList" parameterType="java.util.List">
+        delete from user_info where uid in
+        <foreach collection="list" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </delete>
+
+    <update id="updateUserById" parameterType="com.shixun.sduvideoapi.domain.dto.UserInfoDTO">
+        update user_info set tel=#{tel},email=#{email} where uid=#{uid}
+    </update>
+
+    <update id="classifyVideo" parameterType="com.shixun.sduvideoapi.domain.dto.ClassifyVideoDTO">
+        update video_info set tid=#{tid} where vid=#{vid}
+    </update>
+
+    <insert id="insertType" parameterType="com.shixun.sduvideoapi.domain.dto.VideoTypeDTO">
+        insert into video_type(tid, type_name) values (#{tid}, #{typeName})
+    </insert>
+
+    <update id="updateType" parameterType="com.shixun.sduvideoapi.domain.dto.VideoTypeDTO">
+        update video_type set type_name=#{typeName} where tid=#{tid}
+    </update>
+
+    <update id="deleteType" parameterType="com.shixun.sduvideoapi.domain.entity.VideoType">
+        update video_type set is_deleted=1 where tid=#{tid}
+    </update>
+
+</mapper>

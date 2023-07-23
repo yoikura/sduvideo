@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.shixun.sduvideoapi.mapper.UserInfoMapper">
+
+    <resultMap id="VideoHistoryMap" type="com.shixun.sduvideoapi.domain.vo.HistoryVO">
+        <result column="vid" property="id" />
+        <result column="vname" property="name" />
+        <result column="nick_name" property="author" />
+        <result column="type_name" property="type" />
+        <result column="cover" property="img" />
+        <result column="play_num" property="playNum" />
+        <result column="create_time" property="createTime" />
+        <result column="description" property="description" />
+        <result column="uid" property="uid" />
+        <result column="duration" property="duration" />
+        <result column="avatar" property="avatar" />
+    </resultMap>
+
+    <resultMap id="VideoFollowMap" type="com.shixun.sduvideoapi.domain.vo.VideoFollowVO">
+        <result column="vid" property="id" />
+        <result column="uid" property="uid" />
+        <result column="vname" property="name" />
+        <result column="nick_name" property="author" />
+        <result column="avatar" property="avatar" />
+        <result column="cover" property="img" />
+        <result column="play_num" property="playNum" />
+        <result column="like_num" property="likeNum" />
+        <result column="comment_num" property="commentNum" />
+        <result column="favorite_num" property="favoriteNum" />
+        <result column="create_time" property="createTime" />
+        <result column="description" property="description" />
+        <result column="duration" property="duration" />
+    </resultMap>
+
+    <resultMap id="VideoFavoriteMap" type="com.shixun.sduvideoapi.domain.vo.FavoriteVO">
+        <result column="vid" property="id" />
+        <result column="vname" property="name" />
+        <result column="nick_name" property="author" />
+        <result column="cover" property="img" />
+        <result column="play_num" property="playNum" />
+        <result column="create_time" property="createTime" />
+        <result column="uid" property="uid" />
+        <result column="duration" property="duration" />
+    </resultMap>
+
+    <select id="selectFollow" resultType="com.shixun.sduvideoapi.domain.dto.FollowDTO">
+        select * from follow where  followed_uid = #{followedUid} and following_uid = #{followingUid}
+    </select>
+    
+    
+    <select id="selectById" resultType="com.shixun.sduvideoapi.domain.entity.UserInfo">
+        select * from user_info where uid = #{uid}
+    </select>
+
+    <select id="getUserInfo" resultType="com.shixun.sduvideoapi.domain.entity.UserInfo">
+        select * from user_info where uid = #{uid}
+    </select>
+
+    <select id="getByTel" resultType="com.shixun.sduvideoapi.domain.entity.UserInfo">
+        select * from user_info where tel = #{tel}
+    </select>
+
+    <insert id="insert" parameterType="com.shixun.sduvideoapi.domain.entity.UserInfo">
+        insert into user_info(uid, user_name, tel, avatar) values (#{uid}, #{userName},#{tel},#{avatar})
+    </insert>
+
+    <update id="updateUserInfo" parameterType="com.shixun.sduvideoapi.domain.dto.UserInfoDTO">
+        update user_info
+        <set>
+            <if test="userName!=null">user_name=#{userName},</if>
+            <if test="tel!=null">tel=#{tel},</if>
+            <if test="avatar!=null">avatar=#{avatar},</if>
+            <if test="signature!=null">signature=#{signature},</if>
+            <if test="nickName!=null">nick_name=#{nickName},</if>
+            <if test="gender!=null">gender=#{gender},</if>
+            <if test="birthday!=null">birthday=#{birthday},</if>
+            <if test="email!=null">email=#{email},</if>
+            <if test="province!=null">province=#{province},</if>
+            <if test="city!=null">city=#{city},</if>
+            <if test="area!=null">area=#{area},</if>
+            <if test="password!=null">password=#{password},</if>
+        </set>
+        where uid=#{uid}
+    </update>
+
+    <select id="getFavoriteVideo" resultMap="VideoFavoriteMap">
+        select vf.vid,vname,nick_name,cover,play_num,vf.create_time,ui.uid,duration from video_favorite vf
+         left join video_info on video_info.vid = vf.vid
+         left join user_info ui on video_info.uid = ui.uid
+        where vf.uid = #{uid}
+        order by vf.create_time desc
+    </select>
+
+    <select id="getMyVideo" resultType="com.shixun.sduvideoapi.domain.entity.VideoInfo">
+        select * from video_info where uid=#{uid}
+    </select>
+
+<!--   关注-->
+
+    <insert id="insertAttention" parameterType="com.shixun.sduvideoapi.domain.dto.FollowDTO" >
+            insert into follow(followed_uid,following_uid,create_time) values(#{followedUid},#{followingUid},#{createTime})
+    </insert>
+
+    <update id="updateUserInfoAttentionEd" parameterType="com.shixun.sduvideoapi.domain.dto.FollowDTO">
+        update user_info set followed = followed + 1 where #{followedUid} = uid;
+    </update>
+
+    <update id="updateUserInfoAttentionIng" parameterType="com.shixun.sduvideoapi.domain.dto.FollowDTO">
+        update user_info set following = following + 1 where #{followingUid} = uid;
+    </update>
+
+
+
+<!--    取消关注-->
+    <delete id="DinsertAttention" parameterType="com.shixun.sduvideoapi.domain.dto.FollowDTO" >
+        delete from follow where followed_uid = #{followedUid} and following_uid = #{followingUid}
+    </delete>
+
+    <update id="DupdateUserInfoAttentionEd" parameterType="com.shixun.sduvideoapi.domain.dto.FollowDTO">
+        update user_info set followed = followed - 1 where #{followedUid} = uid;
+    </update>
+
+    <update id="DupdateUserInfoAttentionIng" parameterType="com.shixun.sduvideoapi.domain.dto.FollowDTO">
+        update user_info set following = following - 1 where #{followingUid} = uid;
+    </update>
+
+    <!--    查找我关注谁-->
+
+    <select id="selectAttention" resultType="com.shixun.sduvideoapi.domain.entity.UserInfo">
+        select * from user_info where uid in (select followed_uid from follow where following_uid = #{uid})
+    </select>
+
+    <select id="selectAttentionToMe" resultType="com.shixun.sduvideoapi.domain.entity.UserInfo">
+        select * from user_info where uid in (select following_uid from follow where followed_uid = #{uid})
+    </select>
+
+    <!--    查找历史记录按时间排序-->
+
+    <select id="selectHistory" resultMap="VideoHistoryMap">
+        select video_info.vid,vname,nick_name,type_name,video_info.cover,play_num,vh.create_time as create_time,video_info.uid,duration,avatar from video_info
+        left join user_info ui on video_info.uid = ui.uid
+        left join video_type on video_info.tid = video_type.tid
+        left join video_history vh on video_info.vid = vh.vid
+        where vh.uid = #{uid}
+        order by vh.create_time desc
+    </select>
+
+    <select id="selectAttend" resultType="com.shixun.sduvideoapi.domain.dto.FollowDTO">
+        select *
+        from follow
+        where followed_uid=#{followedUid} and following_uid=#{followingUid};
+    </select>
+
+    <select id="getUserLikeNum" resultType="int">
+        select count(*)
+        from video_like
+                left join video_info vi on vi.vid = video_like.vid
+        where vi.uid = #{uid}
+    </select>
+
+    <select id="getUserPlayNum" resultType="int">
+        select count(*)
+        from video_history
+                left join video_info vi on vi.vid = video_history.vid
+        where vi.uid = #{uid}
+    </select>
+
+    <select id="getUserWork" resultType="com.shixun.sduvideoapi.domain.entity.VideoInfo">
+        select * from video_info where uid = #{uid} where examine
+    </select>
+
+    <insert id="addUser" parameterType="java.util.Map">
+        insert into user_info(user_name,nick_name,email,password) values(#{nickName},#{nickName},#{email},#{password})
+    </insert>
+
+    <select id="getByEmail" resultType="com.shixun.sduvideoapi.domain.entity.UserInfo">
+        select * from user_info where email = #{email}
+    </select>
+
+    <select id="loginByEmail" resultType="com.shixun.sduvideoapi.domain.entity.UserInfo">
+        select * from user_info where email = #{email} and password = #{password}
+    </select>
+
+    <select id="getFollowedVideo" resultMap="VideoFollowMap">
+        select vi.vid,vname,nick_name,vi.cover,play_num,comment_num,like_num,favorite_num,avatar,vi.create_time as create_time,vi.uid,duration,description from video_info vi
+        left join follow fo on fo.followed_uid = vi.uid
+        left join user_info ui on vi.uid = ui.uid
+        where fo.following_uid = #{uid}
+        order by vi.create_time desc
+    </select>
+</mapper>

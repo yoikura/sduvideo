@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.shixun.sduvideoapi.mapper.MessageMapper">
+    <resultMap id="AllMessage" type="com.shixun.sduvideoapi.domain.vo.MessageVO">
+        <result column="from_uid" property="fromUid" />
+        <result column="from_uname" property="fromUname" />
+        <result column="to_uid" property="toUid" />
+        <result column="to_uname" property="toUname" />
+        <result column="content" property="content" />
+        <result column="create_time" property="createTime" />
+    </resultMap>
+
+    <select id="getAllMessage" resultMap="AllMessage">
+        select from_uid,ui.nick_name as from_uname,to_uid,u.nick_name as to_uname,content,create_time
+        from message left join user_info ui on ui.uid = message.from_uid
+        left join user_info u on u.uid = message.to_uid
+        where from_uid=#{fromUid} and to_uid=#{toUid}
+        union
+        select from_uid,ui.nick_name as from_uname,to_uid,u.nick_name as to_uname,content,create_time
+        from message left join user_info ui on ui.uid = message.from_uid
+                     left join user_info u on u.uid = message.to_uid
+        where from_uid=#{toUid} and to_uid=#{fromUid}
+        order by create_time
+    </select>
+
+    <insert id="addMessage">
+        insert into message(from_uid,to_uid,content,create_time) values (#{fromUid},#{toUid},#{content},#{createTime})
+    </insert>
+
+    <select id="selectToUser" resultType="com.shixun.sduvideoapi.domain.entity.UserInfo">
+        select * from user_info where uid in
+        (select to_uid from message where from_uid = #{uid})
+    </select>
+</mapper>
